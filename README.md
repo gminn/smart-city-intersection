@@ -64,7 +64,7 @@ sudo make install
 
 Or you can simply run build_sdk.sh from the root source folder.
 
-## Samples
+### Samples
 
 You can build the two samples separately with their own cmake config:
 
