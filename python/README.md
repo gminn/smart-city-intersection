@@ -21,7 +21,7 @@ pip3 install -r requirements.txt
   python3 message_receiver.py
   # Run SENSR in another terminal
   ```
-- Parse a binary outpuf file
+- Parse binary output frames
   ```bash
-  python3 parse_output.py sample_output/frame_00006.bin
+  python3 parse.py ../binary_files/sample_output
   ```
