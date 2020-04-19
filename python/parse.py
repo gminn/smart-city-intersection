@@ -121,16 +121,10 @@ class Lane:
         return str(self)
 
 
-#   @brief  
-#   @param  
-#   @retval 
 # ( (number of cars * length of the car) + (3*lanewidth) + (2*width of zebra crossing) ) / Constant velocity at the intersection
 def lane_time(num_cars):
     return num_cars
 
-#   @brief  
-#   @param  
-#   @retval 
 def coord_to_lane(obj):
     if((obj.x_pos > 30) & (obj.y_pos > 3) & (obj.y_pos < 15)): 
         return 'Southbound'
@@ -155,9 +149,6 @@ def label_to_string(label):
         return 'Cyclist'
     return 'Misc'
 
-#   @brief  
-#   @param  
-#   @retval 
 # converts a zone number into a Lane object
 # NOTE: must be customized based on how zones are configured in SENSR-S
 def zone_to_Lane(zone):
@@ -200,9 +191,6 @@ def is_vaild_lane(lanes_arr, zone_id):
             return 1
     return 0
 
-#   @brief  
-#   @param  
-#   @retval 
 # returns parsed output from binary file
 def parse_output_file(filename):
     with open(filename, 'rb') as f:
@@ -210,9 +198,6 @@ def parse_output_file(filename):
         output.ParseFromString(f.read())
         return output
 
-#   @brief  
-#   @param  
-#   @retval 
 # returns whether an object is in a particular lane
 def is_in_lane(output, lanes_arr, obj_id, zone_id):
     if ~is_valid_lane(lanes_arr, zone_id): # check if valid lane
@@ -225,9 +210,6 @@ def is_in_lane(output, lanes_arr, obj_id, zone_id):
                         return True
         return False
 
-#   @brief  
-#   @param  
-#   @retval 
 # returns a list populated with lane information
 # parameter output is the translated binary output (return 
 # value of the function parse_output_file()
@@ -285,11 +267,7 @@ def is_reliable_tracking(object):
     except AttributeError:
         print(f'Tracking reliable field not set for Object #{object.id}')
         return -1
-
-
-#   @brief  
-#   @param  
-#   @retval 
+ 
 # returns matrix of Car objects
 # parameter bag_dir is a path to a directory with bin files from a ROS bag
 # parameter num_files is an integer equal to the number of files to process
@@ -318,12 +296,13 @@ def get_car_objs(bag_dir, num_files):
                 objs_matrix.append(row)
     return objs_matrix
 
-def main():
+# returns dict of { #cars: traffic lane } at an intersection
+def get_car_count_dict():
     parser = ArgumentParser()
     parser.add_argument('foldername', type=str)
     args = parser.parse_args()
 
-    object_matrix = get_car_objs(args.foldername, 1)
+    object_matrix = get_car_objs(args.foldername, 1) # parse only 1 file (the first one)
     car_count_dict = { 'Westbound': 0, 'Eastbound': 0, 'Southbound': 0, 'Northbound': 0}
     for obj in object_matrix[0]:
         lane = coord_to_lane(obj)
@@ -335,18 +314,21 @@ def main():
             car_count_dict['Southbound'] += 1
         elif(lane == 'Northbound'):
             car_count_dict['Northbound'] += 1
-    
+    return car_count_dict
+
+# returns a list of the signal value each second
+def get_sig_list(dict):
     q = PriorityQueue()
     my_q = ReversePriorityQueue(q)
-    my_q.put((lane_time(car_count_dict['Eastbound']), 'Eastbound'))
-    my_q.put((lane_time(car_count_dict['Westbound']), 'Westbound'))
-    my_q.put((lane_time(car_count_dict['Southbound']), 'Southbound'))
-    my_q.put((lane_time(car_count_dict['Northbound']), 'Northbound'))
+    my_q.put((lane_time(dict['Eastbound']), 'Eastbound'))
+    my_q.put((lane_time(dict['Westbound']), 'Westbound'))
+    my_q.put((lane_time(dict['Southbound']), 'Southbound'))
+    my_q.put((lane_time(dict['Northbound']), 'Northbound'))
     
     sigs = Signals()
+    signal_cycle = []
     while not my_q.empty():
         next_item = my_q.get()
-        print(next_item)  
         time = next_item[0]
         lane = next_item[1]
         if(lane == 'Eastbound'):
@@ -362,13 +344,11 @@ def main():
             sigs.set_state(NB_GR)
             sigs.NEXT_STATE = NB_Y
         for count in range(0, time):
-            print(f'State {sigs.STATE}')
+            signal_cycle.append(sigs.STATE)
         sigs.set_state(sigs.NEXT_STATE)
         sigs.NEXT_STATE = RESET
         for cout in range(0, 2): 
-            print(f'State {sigs.STATE}')
+            signal_cycle.append(sigs.STATE)
         sigs.set_state(sigs.NEXT_STATE)
-        print(f'State {sigs.STATE}')
-            
-if __name__ == '__main__':
-    main();
+        signal_cycle.append(sigs.STATE)
+    return signal_cycle
