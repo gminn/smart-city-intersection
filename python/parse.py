@@ -185,7 +185,7 @@ def zone_to_Lane(zone):
     return Lane(tr_direct, is_left_turn)
 
 # returns whether a reqested lane has been configured
-def is_vaild_lane(lanes_arr, zone_id):
+def is_valid_lane(lanes_arr, zone_id):
     for lane in lanes_arr:
         if lane == zone_id:
             return 1
@@ -254,10 +254,8 @@ def populate_lanes(output):
         lanes_arr.append(Lane(tr_direct, is_left_turn))
     return lanes_arr
 
-#   @brief  
-#   @param  
-#   @retval 
-# returns whether an object has reliable tracking info
+#   @param object is a protobuf object returned from SENSR
+#   @returns whether an object has reliable tracking info
 def is_reliable_tracking(object):
     try:
         if object.track.tracking_reliable == True:
@@ -268,9 +266,9 @@ def is_reliable_tracking(object):
         print(f'Tracking reliable field not set for Object #{object.id}')
         return -1
  
-# returns matrix of Car objects
-# parameter bag_dir is a path to a directory with bin files from a ROS bag
-# parameter num_files is an integer equal to the number of files to process
+#   @param  bag_dir is a path to a directory with bin files from a ROS bag
+#   @param  num_files is an integer equal to the number of files to process
+#   @returns matrix of Car objects
 def get_car_objs(bag_dir, num_files):
     p = Path('../binary_files')
     if(p.exists() is not True):
@@ -296,7 +294,7 @@ def get_car_objs(bag_dir, num_files):
                 objs_matrix.append(row)
     return objs_matrix
 
-# returns dict of { #cars: traffic lane } at an intersection
+#   @returns dict of { #cars: traffic lane } at an intersection
 def get_car_count_dict():
     parser = ArgumentParser()
     parser.add_argument('foldername', type=str)
@@ -316,7 +314,9 @@ def get_car_count_dict():
             car_count_dict['Northbound'] += 1
     return car_count_dict
 
-# returns a list of the signal value each second
+#   @param dict is a dictionary with keys = traffic directions and 
+#   values = number of cars in each lane
+#   @returns a list of the signal value each second
 def get_sig_list(dict):
     q = PriorityQueue()
     my_q = ReversePriorityQueue(q)
@@ -347,7 +347,7 @@ def get_sig_list(dict):
             signal_cycle.append(sigs.STATE)
         sigs.set_state(sigs.NEXT_STATE)
         sigs.NEXT_STATE = RESET
-        for cout in range(0, 2): 
+        for count in range(0, 2): 
             signal_cycle.append(sigs.STATE)
         sigs.set_state(sigs.NEXT_STATE)
         signal_cycle.append(sigs.STATE)
