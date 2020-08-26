@@ -1,0 +1,10 @@
+# Body37
+
+## Properties
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**message** | **str** | The message to be sent to other users of the system. | [optional] 
+**user** | **str** | Username to send with message. Optional. | [optional] 
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
