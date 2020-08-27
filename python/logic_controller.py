@@ -1,4 +1,60 @@
 #!/usr/bin/env python3
+
+def fetch_smalltable_rows(table_handle: smalltable.Table,
+                          keys: Sequence[Union[bytes, str]],
+                          require_all_keys: bool = False,
+                         ) -> Mapping[bytes, Tuple[str]]:
+    """Fetches rows from a Smalltable.
+
+    Retrieves rows pertaining to the given keys from the Table instance
+    represented by table_handle.  String keys will be UTF-8 encoded.
+
+    Args:
+      table_handle:
+        An open smalltable.Table instance.
+      keys:
+        A sequence of strings representing the key of each table row to
+        fetch.  String keys will be UTF-8 encoded.
+      require_all_keys:
+        Optional; If require_all_keys is True only rows with values set
+        for all keys will be returned.
+
+    Returns:
+      A dict mapping keys to the corresponding table row data
+      fetched. Each row is represented as a tuple of strings. For
+      example:
+
+      {b'Serak': ('Rigel VII', 'Preparer'),
+       b'Zim': ('Irk', 'Invader'),
+       b'Lrrr': ('Omicron Persei 8', 'Emperor')}
+
+      Returned keys are always bytes.  If a key from the keys argument is
+      missing from the dictionary, then that row was not found in the
+      table (and require_all_keys must have been False).
+
+    Raises:
+      IOError: An error occurred accessing the smalltable.
+    """
+
+class SampleClass:
+    """Summary of class here.
+
+    Longer class information....
+    Longer class information....
+
+    Attributes:
+        likes_spam: A boolean indicating if we like SPAM or not.
+        eggs: An integer count of the eggs we have laid.
+    """
+
+    def __init__(self, likes_spam=False):
+        """Inits SampleClass with blah."""
+        self.likes_spam = likes_spam
+        self.eggs = 0
+
+    def public_method(self):
+        """Performs operation blah."""
+
 from pathlib import Path
 from argparse import ArgumentParser
 from output_pb2 import OutputMessage
@@ -18,13 +74,54 @@ class ObjectLabel(Enum):
     MISC = 4
 
 class Intersection:
-    # LaneInfo is a simple class that holds a set of data about each lane.
-    # It does not hold the actual items in the lanes
+    """Contains functionality for detecting and controlling traffic flow.
+
+    Attributes:
+        lanes: 
+            Array of LaneInfo objects.
+        traffic_q: 
+            Reverse priority queue for lanes to be emptied.
+    """
+
     class LaneInfo:
-        # BoundingArea is a simple class that holds the bounding values of a lane
+        """Holds a set of data about each lane.
+
+        Attributes:
+            dir: 
+                Direction of the lane.
+            is_striaght: 
+                Boolean value for if lane allows traffic to travel straight.
+            is_left:
+                Boolean value for if lane allows traffic to turn left.
+            is_right:
+                Boolean value for if lane allows traffic to turn right.
+            num_cars:
+                Number of cars detected in the lane.
+            bounds:
+                BoundingArea object describing bounds of the lane.
+            lane_time:
+                How long it takes for the lane to be emptied.
+        """
+        
         class BoundingArea:
+            """Holds bounding values of lane
+
+            Attributes:
+                x_min:
+                    Minimum x coordinate value (meters).
+                x_max:
+                    Maxium x coordinate value (meters).
+                y_min:
+                    Minimum y coordinate value (meters).
+                y_max:
+                    Maximum y coordinate value (meters).
+            """
             # x and y are the coords of the center of the lane
             def __init__(self, x, y, lane_dims):
+                """
+                TODO
+                """
+
                 self.x_min = x - (lane_dims.width/2)
                 self.x_max = x + (lane_dims.width/2)
                 self.y_min = y - (lane_dims.height/2)
@@ -43,7 +140,6 @@ class Intersection:
                 lane_info[lane_dims])
             self.lane_time = 0
 
-        #   @param num_cars is the number of cars detected in a lane
         #   @returns caluclated time to empty the lane
         def calc_lane_time():
             # TODO: add advanced calculation on lane time given # of cars
